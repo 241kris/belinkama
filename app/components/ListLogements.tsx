@@ -1,0 +1,119 @@
+// app/components/ListLogements.tsx
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
+import { getLogements, LogementWithRelations } from "@/app/actions/getLogements";
+
+export default function ListLogements() {
+  const [logements, setLogements] = useState<LogementWithRelations[]>([]);
+  const [filtered, setFiltered] = useState<LogementWithRelations[]>([]);
+  const [budget, setBudget] = useState(300000);
+  const [type, setType] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [, setMessage] = useState("");
+
+  // Charger les logements au montage
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const { message, data } = await getLogements();
+      setLogements(data);
+      setFiltered(data); // par défaut afficher tout
+      setMessage(message);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  // Appliquer filtres chaque fois que budget ou type change
+  useEffect(() => {
+    let results = logements.filter((l) => l.prix <= budget);
+
+    if (type) {
+      results = results.filter((l) => l.type === type);
+    }
+
+    setFiltered(results);
+  }, [budget, type, logements]);
+
+  return (
+    <>
+      {/* Filtres */}
+      <div className="h-70 flex justify-center items-center">
+        <div>
+          <div className="w-full flex justify-center flex-col">
+            <input
+              type="range"
+              min={30000}
+              max={500000}
+              step={10000}
+              value={budget}
+              onChange={(e) => setBudget(Number(e.target.value))}
+              className="range w-full"
+            />
+            <div className="mt-3 text-center text-sm">
+              Budget limite : {budget.toLocaleString()} FCFA
+            </div>
+          </div>
+
+          <label className="label text-sm mt-4">Que recherchez-vous ?</label>
+          <select
+            name="type"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="select w-full"
+          >
+            <option value="">Tous</option>
+            <option value="maison">Maison</option>
+            <option value="studio">Studio</option>
+            <option value="chambre">Chambre</option>
+            <option value="appartement">Appartement</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Résultats */}
+      {loading ? (
+        <div className="flex h-full items-center justify-center my-4"><span className="loading loading-spinner loading-sm"></span></div>
+      ) : filtered.length === 0 ? (
+        <div className="alert alert-warning my-4 col-span-full">
+          <span>Aucun logement trouvé avec ces critères</span>
+        </div>
+      ) : (
+        <section className="h-full grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+          {filtered.map((logement) => (
+            <div
+              key={logement.id}
+              className="card border border-gray-400 p-2 w-full shadow-sm"
+            >
+              <Link href={`/logement/${logement.slug}`}>
+                <figure className="hover-gallery h-45">
+                  <Image
+                    src={logement.images?.[0]?.secureUrl || "/profile.png"}
+                    width={500}
+                    height={500}
+                    alt={logement.titre}
+                    className="object-cover rounded-md"
+                  />
+                </figure>
+              </Link>
+              <div className="card-body text-start">
+                <h2 className="font-extrabold text-base">{logement.titre}</h2>
+                <span>{logement.lieu}</span>
+                <span className="font-semibold text-sm">
+                  {logement.prix.toLocaleString()} FCFA / mois
+                </span>
+                <span>{logement.charge ? "avec charges" : "sans charges"}</span>
+                <span className="text-xs">
+                  publié le {new Date(logement.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+    </>
+  );
+}

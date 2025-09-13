@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(nanoid())
+  firstName   String
+  lastName    String
+  phone       String     @unique
+  password    String
+  isAdmin     Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  secondphone String?
+  logements   Logement[]
+  reports     Report[]
+}
+
+model Logement {
+  id       String  @id @default(uuid())
+  titre    String
+  type     String
+  slug     String  @unique
+  prix     Float
+  lieu     String
+  douche   Int?
+  cuisine  Int?
+  chambre  Int?
+  toilette Boolean
+
+  description    String
+  particularité Json
+
+  userId    String
+  createdAt DateTime       @default(now())
+  status    LogementStatus @default(ACTIF)
+  charge    Boolean
+  images    Image[]
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports   Report[]
+}
+
+model Image {
+  id         String   @id @default(uuid())
+  secureUrl  String
+  publicId   String
+  logementId String
+  logement   Logement @relation(fields: [logementId], references: [id], onDelete: Cascade)
+}
+
+model Report {
+  id         String     @id @default(uuid())
+  type       ReportType
+  createdAt  DateTime   @default(now())
+  logementId String
+  userId     String
+  logement   Logement   @relation(fields: [logementId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ReportType {
+  OCCUPE
+  FAUSSE_ANNONCE
+}
+
+enum LogementStatus {
+  ACTIF
+  DESACTIVE
+  BLOQUE
+}
