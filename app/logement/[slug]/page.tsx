@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -6,7 +6,10 @@ import Image from "next/image";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { ImageType, Logement } from "@/types/logements";
 import Wrapper from "@/app/components/Wrapper";
-import { reportLogement } from "@/app/actions/reportLogement"; // ✅ action server
+import { reportLogement } from "@/app/actions/reportLogement";
+import { TbToolsKitchen } from "react-icons/tb";
+import { AiOutlineCheck } from "react-icons/ai";
+import { LuBed, LuToilet, LuShowerHead } from "react-icons/lu";
 
 export default function LogementPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -38,23 +41,23 @@ export default function LogementPage() {
   };
 
   const getErrorMessage = (error: unknown): string => {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "string") return error;
-  return "Erreur inconnue";
-};
+    if (error instanceof Error) return error.message;
+    if (typeof error === "string") return error;
+    return "Erreur inconnue";
+  };
 
-const handleReport = async (type: "OCCUPE" | "FAUSSE_ANNONCE") => {
-  if (!logement) return;
+  const handleReport = async (type: "OCCUPE" | "FAUSSE_ANNONCE") => {
+    if (!logement) return;
 
-  try {
-    const res = await reportLogement(logement.id, type);
-    setMessage({ type: "success", text: res.message });
-  } catch (err: unknown) {
-    setMessage({ type: "error", text: getErrorMessage(err) || "Erreur lors du signalement" });
-  } finally {
-    setTimeout(() => setMessage(null), 4000);
-  }
-};
+    try {
+      const res = await reportLogement(logement.id, type);
+      setMessage({ type: "success", text: res.message });
+    } catch (err: unknown) {
+      setMessage({ type: "error", text: getErrorMessage(err) || "Erreur lors du signalement" });
+    } finally {
+      setTimeout(() => setMessage(null), 4000);
+    }
+  };
 
 
   if (loading) return <p className="text-center">Chargement...</p>;
@@ -95,7 +98,7 @@ const handleReport = async (type: "OCCUPE" | "FAUSSE_ANNONCE") => {
       </span>
 
       {/* Infos logement */}
-      <div className="mt-4">
+      <div className="mt-4 text-black">
         <h1 className="text-2xl font-extrabold">{logement.titre}</h1>
         <ul>
           <li className="text-sm link">{logement.lieu}</li>
@@ -109,25 +112,57 @@ const handleReport = async (type: "OCCUPE" | "FAUSSE_ANNONCE") => {
           </li>
         </ul>
 
+        <div className="my-7 text-green-700">
+          <ul className="space-y-1 text-sm">
+            {logement.chambre && logement.chambre > 0 && (
+              <li className="flex items-center gap-2">
+                <LuBed className="text-base text-blue-500" />
+                {logement.chambre} chambre(s)
+              </li>
+            )}
+
+            {logement.cuisine && logement.cuisine > 0 && (
+              <li className="flex items-center gap-2">
+                <TbToolsKitchen className="text-base text-orange-500" />
+                {logement.cuisine} cuisine(s)
+              </li>
+            )}
+
+            {logement.douche && logement.douche > 0 && (
+              <li className="flex items-center gap-2">
+                <LuShowerHead className="text-base text-teal-500" />
+                {logement.douche} douche(s)
+              </li>
+            )}
+          </ul>
+
+          {/* Toilette */}
+          {logement.toilette !== null && (
+            <span className="text-sm flex items-center gap-2 mt-2">
+              <LuToilet className="text-base text-gray-700" />
+              {logement.toilette ? "Toilette intérieure" : "Toilette extérieure"}
+            </span>
+          )}
+          
+        </div>
+
         {/* Particularités */}
         <div className="mt-4">
-          <h2 className="text-sm font-semibold link">Particularités</h2>
-          <ul className="text-sm">
-            {logement.particularité?.map((p: string, i: number) => (
-              <li key={i}>{p}</li>
+          <ul className="text-sm space-y-1">
+            {logement.particularite?.map((p: string, i: number) => (
+              <li key={i} className="flex items-center gap-2">
+                <AiOutlineCheck className="text-green-500" /> {/* icône check verte */}
+                <span>{p}</span>
+              </li>
             ))}
           </ul>
         </div>
-
-        {/* Description */}
-        <div className="mt-7">
-          <h2 className="text-sm font-semibold link">Description</h2>
-          <p className="text-justify text-sm">{logement.description}</p>
+        <div className="h-30 p-4 text-sm">
+           {logement.description}
         </div>
-
         {/* Auteur */}
         <div className="mt-7">
-          <h2 className="text-sm link text-success">Auteur de l&rsquo;annonce</h2>
+          <h2 className="text-base  font-bold">Auteur de l&rsquo;annonce</h2>
           <ul className="text-sm mt-5">
             <li>
               {logement.user.firstName} {logement.user.lastName}
@@ -140,11 +175,10 @@ const handleReport = async (type: "OCCUPE" | "FAUSSE_ANNONCE") => {
 
       {/* Zone signalement */}
       <div className=" py-7 flex flex-col items-start">
-         {message && (
+        {message && (
           <div
-            className={`ml-3 text-xs ${
-              message.type === "success" ? "text-success" : "text-error"
-            }`}
+            className={`ml-3 text-xs ${message.type === "success" ? "text-success" : "text-error"
+              }`}
           >
             {message.text}
           </div>
@@ -172,7 +206,7 @@ const handleReport = async (type: "OCCUPE" | "FAUSSE_ANNONCE") => {
             </li>
           </ul>
         </details>
-       
+
       </div>
     </Wrapper>
   );

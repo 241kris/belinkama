@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useCreateLogement } from "../hooks/useLogement";
 import Nav from "../components/Nav";
@@ -8,11 +10,28 @@ const allowedMimeTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 
 export default function Page() {
+
+
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const res = await fetch("/api/me");
+            const data = await res.json();
+
+            if (!data.user) {
+                router.replace("/login?message=connectez-vous afin de passer une annonce");
+            }
+        };
+
+        checkAuth();
+    }, [router]);
+
     const token = "user-jwt-token"; // 👉 récupère ton vrai JWT depuis auth
     const createLogement = useCreateLogement(token);
     const [type, setType] = useState("");
     const [errors, setErrors] = useState<Record<string, string>>({});
-     
+
 
     const [success, setSuccess] = useState(false);
 
@@ -72,6 +91,11 @@ export default function Page() {
             await createLogement.mutateAsync(formData);
             setSuccess(true);
 
+
+            const audio = new Audio("/notif/notif.wav");
+            audio.play().catch((err) => {
+                console.error("Impossible de jouer le son :", err);
+            });
             // Nettoyer le formulaire
             form.reset();
             setType("");
@@ -108,16 +132,12 @@ export default function Page() {
             <section className="p-5 space-y-5">
                 <form onSubmit={handleSubmit}>
                     <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4 space-y-3">
-                        {success && (
-                            <div role="alert" className="alert alert-success">
-                                <span>Annonce enregistrée avec succès</span>
-                            </div>
-                        )}
+
 
                         {errors.global && <p className="text-red-500">{errors.global}</p>}
 
                         {/* bloc 1 */}
-                       <label className="label text-sm text-black">Titre de l&rsquo;annonce</label>
+                        <label className="label text-sm text-black">Titre de l&rsquo;annonce</label>
                         {errors.titre && <p className="text-red-500">{errors.titre}</p>}
                         <input
                             type="text"
@@ -129,7 +149,7 @@ export default function Page() {
 
                         <div className="flex items-center justify-between gap-4">
                             <div>
-                               <label className="label text-sm text-black">Type de logement</label>
+                                <label className="label text-sm text-black">Type de logement</label>
                                 {errors.type && <p className="text-red-500">{errors.type}</p>}
                                 <select
                                     name="type"
@@ -147,7 +167,7 @@ export default function Page() {
                             </div>
 
                             <div>
-                               <label className="label text-sm text-black">Lieu</label>
+                                <label className="label text-sm text-black">Lieu</label>
                                 {errors.lieu && <p className="text-red-500">{errors.lieu}</p>}
                                 <input
                                     type="text"
@@ -159,7 +179,7 @@ export default function Page() {
                             </div>
                         </div>
 
-                       <label className="label text-sm text-black">Images du logement</label>
+                        <label className="label text-sm text-black">Images du logement</label>
                         {errors.image && <p className="text-red-500">{errors.image}</p>}
 
                         <input
@@ -175,20 +195,20 @@ export default function Page() {
                             <>
                                 <div className="flex items-center justify-between gap-4">
                                     <div>
-                                       <label className="label text-sm text-black">Nombre de chambres</label>
+                                        <label className="label text-sm text-black">Nombre de chambres</label>
                                         {errors.chambre && <p className="text-red-500">{errors.chambre}</p>}
                                         <input type="number" name="chambre" className="input w-full" min={0} />
 
                                     </div>
                                     <div>
-                                       <label className="label text-sm text-black">Nombre de douches</label>
+                                        <label className="label text-sm text-black">Nombre de douches</label>
                                         {errors.douche && <p className="text-red-500">{errors.douche}</p>}
                                         <input type="number" name="douche" className="input w-full" min={0} />
 
                                     </div>
                                 </div>
 
-                               <label className="label text-sm text-black">Nombre de cuisines</label>
+                                <label className="label text-sm text-black">Nombre de cuisines</label>
                                 {errors.cuisine && <p className="text-red-500">{errors.cuisine}</p>}
                                 <input type="number" name="cuisine" className="input w-full" min={0} />
 
@@ -197,22 +217,25 @@ export default function Page() {
 
                         {/* bloc 3 */}
                         <div className="flex items-center gap-5 justify-between my-4">
-                            <label className="flex items-center gap-2">
+                            <label className="flex items-center gap-2 text-sm text-black">
                                 <input type="radio" name="toilette" value="exterieur" className="radio" />
                                 Toilette extérieure
                             </label>
-                            <label className="flex items-center gap-2">
+                            <label className="flex items-center gap-2 text-sm text-black">
                                 <input type="radio" name="toilette" value="interieur" className="radio" />
                                 Toilette intérieure
                             </label>
                         </div>
                         {errors.toilette && <p className="text-red-500">{errors.toilette}</p>}
                         <label className="label text-sm text-black">Particularités du logement</label>
+
                         {errors.particularite && <p className="text-red-500">{errors.particularite}</p>}
+
 
                         <div className="space-y-2">
                             {[
                                 "Très proche de la route",
+                                "Equipé d'un climatiseur",
                                 "Compteur EDAN personnel",
                                 "Wifi disponible",
                                 "Situé dans une barrière",
@@ -234,12 +257,12 @@ export default function Page() {
 
 
 
-                       <label className="label text-sm text-black">Prix</label>
+                        <label className="label text-sm text-black">Prix</label>
                         {errors.prix && <p className="text-red-500">{errors.prix}</p>}
                         <input type="number" name="prix" className="input w-full" min={0} />
 
 
-                       <label className="label text-sm text-black">Avec charge</label>
+                        <label className="label text-sm text-black">Avec charge</label>
                         {errors.charge && <p className="text-red-500">{errors.charge}</p>}
                         <div className="flex gap-4">
                             <label className="flex items-center gap-2">
@@ -253,7 +276,7 @@ export default function Page() {
                         </div>
 
 
-                       <label className="label text-sm text-black">Description</label>
+                        <label className="label text-sm text-black">Description</label>
                         {errors.description && <p className="text-red-500">{errors.description}</p>}
                         <textarea
                             name="description"
@@ -261,7 +284,12 @@ export default function Page() {
                             placeholder="Décrivez le logement..."
                         ></textarea>
 
-
+                        {success && (
+                            <div role="alert" className="alert alert-success">
+                                <span>Annonce enregistrée avec succès</span>
+                            </div>
+                        )}
+                          
                         <div className="my-7 flex gap-3">
                             <button
                                 type="submit"

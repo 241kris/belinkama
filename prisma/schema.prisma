@@ -33,7 +33,8 @@ model Logement {
   toilette Boolean
 
   description    String
-  particularité Json
+  particularite Json?
+
 
   userId    String
   createdAt DateTime       @default(now())

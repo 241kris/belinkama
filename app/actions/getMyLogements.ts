@@ -41,8 +41,7 @@ export async function getMyLogements(): Promise<Logement[]> {
     cuisine: l.cuisine,
     chambre: l.chambre,
     toilette: l.toilette,
-    description: l.description,
-    particularité: l.particularité as string[],
+    description: l.description,    
     createdAt: l.createdAt.toISOString(),
     user: {
       secondphone: l.user.secondphone || "",

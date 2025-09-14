@@ -11,8 +11,7 @@ export type Logement = {
   titre: string;
   type: string;
   prix: number;
-  charge: boolean;
-  visible: boolean;
+  charge: boolean; 
   lieu: string;
   status: string;
   images: ImageType[];
@@ -21,7 +20,8 @@ export type Logement = {
   chambre?: number | null;
   toilette?: boolean | null;
   description: string;
-  particularité: string[];
+  
+  particularite?: string[];
   createdAt: string;
   user: {
     secondphone: string;

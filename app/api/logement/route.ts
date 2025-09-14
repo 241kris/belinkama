@@ -26,10 +26,11 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const files = formData.getAll("images") as File[];
-    if (files.length > 6) return NextResponse.json({ error: "Maximum 6 images" }, { status: 400 });
+    if (files.length > 7) return NextResponse.json({ error: "Maximum 6 images" }, { status: 400 });
 
-    // Préparation logement
-    const particularites = formData.getAll("particularité") as string[];
+    // Récupérer les particularités
+    const particularites = formData.getAll("particularite") as string[];
+
     const logementData = {
       titre: formData.get("titre") as string,
       type: formData.get("type") as string,
@@ -42,15 +43,15 @@ export async function POST(req: NextRequest) {
       chambre: formData.get("chambre") ? Number(formData.get("chambre")) : null,
       toilette: formData.get("toilette") === "true",
       description: formData.get("description") as string,
-      particularité: particularites,
-    
+      particularite: particularites,
+
       userId,
     };
 
     logementSchema.parse({ ...logementData });
 
     // Création du logement
-    const logement = await prisma.logement.create({data: logementData });
+    const logement = await prisma.logement.create({ data: logementData });
 
     // Upload des images + création en BDD
     for (const file of files) {
@@ -103,4 +104,3 @@ export async function POST(req: NextRequest) {
 
 
 
- 
