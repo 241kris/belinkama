@@ -1,14 +1,14 @@
-"use client";
+ "use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { getMyLogements, MyLogement } from "@/app/actions/getLogements"; // ✅ correction
+import { getLogements, LogementWithRelations } from "@/app/actions/getLogements"; // assure-toi que c'est bien `export` dans getLogements.ts
 
 export default function ListLogements() {
-  const [logements, setLogements] = useState<MyLogement[]>([]);
-  const [filtered, setFiltered] = useState<MyLogement[]>([]);
-  const [today, setToday] = useState<MyLogement[]>([]);
+  const [logements, setLogements] = useState<LogementWithRelations[]>([]);
+  const [filtered, setFiltered] = useState<LogementWithRelations[]>([]);
+  const [today, setToday] = useState<LogementWithRelations[]>([]);
   const [budget, setBudget] = useState(300000);
   const [type, setType] = useState("");
   const [loading, setLoading] = useState(true);
@@ -17,14 +17,11 @@ export default function ListLogements() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-
-      // ⚠️ tu dois passer un `userId` ici
-      const userId = "123"; // 🔴 à remplacer par l’ID utilisateur réel
-      const data = await getMyLogements(userId);
+      const { message, data } = await getLogements();
 
       // Séparer les logements publiés aujourd&apos;hui
       const now = new Date();
-      const todayList = data.filter((l: MyLogement) => {
+      const todayList = data.filter((l) => {
         const created = new Date(l.createdAt);
         return (
           created.getFullYear() === now.getFullYear() &&
@@ -44,7 +41,7 @@ export default function ListLogements() {
       setToday(todayList);
       setLogements(restList);
       setFiltered(restList);
-      setMessage("OK");
+      setMessage(message);
       setLoading(false);
     };
     fetchData();

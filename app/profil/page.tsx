@@ -8,16 +8,20 @@ import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
   const token = (await cookies()).get("token")?.value;
+
   if (!token) {
-    redirect("/login"); // redirige si pas connecté
+    // Redirige vers login avec message si pas connecté
+    redirect("/login?message= Connectez-vous pour accéder à cette page");
   }
 
   let payload: { userId: string };
   try {
     payload = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
   } catch {
-    redirect("/login");
+    // Redirige avec message si token invalide
+    redirect("/login?message=Session invalide, veuillez vous reconnecter");
   }
+
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
