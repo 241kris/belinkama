@@ -27,7 +27,7 @@ export default function Nav() {
   const links = [
     { href: "/", label: "Accueil" },
     { href: "/profil", label: "Mon profil" },
-    { href: "/register-home", label: "Passer une annonce" },
+    { href: "/register-home", label: "mettre mon logement en location" },
     { href: "/login", label: "Se connecter", hideIfAuth: true },
     { href: "/register", label: "S'inscrire", hideIfAuth: true },
   ]

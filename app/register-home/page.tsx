@@ -190,30 +190,28 @@ export default function Page() {
                             className="file-input w-full"
                         />
 
-                        {/* bloc 2 — caché si studio ou chambre */}
-                        {type !== "studio" && type !== "chambre" && (
-                            <>
-                                <div className="flex items-center justify-between gap-4">
-                                    <div>
-                                        <label className="label text-sm text-black">Nombre de chambres</label>
-                                        {errors.chambre && <p className="text-red-500">{errors.chambre}</p>}
-                                        <input type="number" name="chambre" className="input w-full" min={0} />
 
-                                    </div>
-                                    <div>
-                                        <label className="label text-sm text-black">Nombre de douches</label>
-                                        {errors.douche && <p className="text-red-500">{errors.douche}</p>}
-                                        <input type="number" name="douche" className="input w-full" min={0} />
 
-                                    </div>
-                                </div>
+                        <div className="flex items-center justify-between gap-4">
+                            <div>
+                                <label className="label text-sm text-black">Nombre de chambres</label>
+                                {errors.chambre && <p className="text-red-500">{errors.chambre}</p>}
+                                <input type="number" name="chambre" className="input w-full" min={0} />
 
-                                <label className="label text-sm text-black">Nombre de cuisines</label>
-                                {errors.cuisine && <p className="text-red-500">{errors.cuisine}</p>}
-                                <input type="number" name="cuisine" className="input w-full" min={0} />
+                            </div>
+                            <div>
+                                <label className="label text-sm text-black">Nombre de douches</label>
+                                {errors.douche && <p className="text-red-500">{errors.douche}</p>}
+                                <input type="number" name="douche" className="input w-full" min={0} />
 
-                            </>
-                        )}
+                            </div>
+                        </div>
+
+                        <label className="label text-sm text-black">Nombre de cuisines</label>
+                        {errors.cuisine && <p className="text-red-500">{errors.cuisine}</p>}
+                        <input type="number" name="cuisine" className="input w-full" min={0} />
+
+
 
                         {/* bloc 3 */}
                         <div className="flex items-center gap-5 justify-between my-4">
@@ -289,7 +287,7 @@ export default function Page() {
                                 <span>Annonce enregistrée avec succès</span>
                             </div>
                         )}
-                          
+
                         <div className="my-7 flex gap-3">
                             <button
                                 type="submit"
